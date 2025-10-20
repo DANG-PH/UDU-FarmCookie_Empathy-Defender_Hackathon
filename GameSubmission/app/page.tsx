@@ -2,7 +2,7 @@
 import React, { useState, useRef } from 'react';
 import { Send, Heart, AlertCircle, CheckCircle, Zap, Shield, Smile, Frown, Key } from 'lucide-react';
 
-type GameState = 'setup' | 'menu' | 'playing' | 'result';
+type GameState = 'setup' | 'menu' | 'story' | 'playing' | 'result';
 
 interface Message {
   text: string;
@@ -32,6 +32,32 @@ export default function EmpathyDefender() {
   const [round, setRound] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const [locked, setLocked] = useState(false);
+  const [lineIndex, setLineIndex] = useState(0);
+  const [displayedText, setDisplayedText] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const storyLines = [
+      "🌍 In a world where social media connects everyone...",
+      "😔 Hate and bullying have spread faster than ever.",
+      "💖 You are the Empathy Defender — trained to fight negativity with kindness.",
+      "✨ Use your words to heal hearts and bring light back to the web.",
+      "Are you ready to defend empathy?"
+    ];
+
+    // Typing animation
+    React.useEffect(() => {
+      if (isTyping) return;
+      setIsTyping(true);
+      let i = 0;
+      const interval = setInterval(() => {
+        setDisplayedText(storyLines[lineIndex].slice(0, i + 1));
+        i++;
+        if (i >= storyLines[lineIndex].length) {
+          clearInterval(interval);
+          setIsTyping(false);
+        }
+      }, 40);
+      return () => clearInterval(interval);
+    }, [lineIndex]);
 
   // Analyze emotion using OpenAI API
   const analyzeEmotionWithAI = async (text: string): Promise<boolean> => {
@@ -374,6 +400,13 @@ export default function EmpathyDefender() {
           </div>
 
           <button
+            onClick={() => setGameState('story')}
+            className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-bold py-4 rounded-lg transition transform hover:scale-105 shadow-lg mb-4"
+          >
+            📖 Story Mode
+          </button>
+
+          <button
             onClick={startGame}
             className="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-bold py-4 rounded-lg transition transform hover:scale-105 shadow-lg"
           >
@@ -384,6 +417,45 @@ export default function EmpathyDefender() {
             <p>💡 Each correct classification: +10 points</p>
             <p>✨ Heal a statement: +20 points</p>
             <p>🔥 Streak combo: Points multiplied by 2x, 3x...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  if (gameState === 'story') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-900 flex flex-col items-center justify-center text-center p-6">
+        <div className="max-w-xl bg-slate-800 bg-opacity-60 backdrop-blur-lg rounded-2xl p-8 border border-pink-400 border-opacity-30 shadow-2xl">
+          <h1 className="text-3xl font-bold text-pink-300 mb-6">📖 The Story</h1>
+          <p className="text-white text-lg min-h-[100px] transition-all duration-300">
+            {displayedText}
+            {isTyping && <span className="animate-pulse">▌</span>}
+          </p>
+
+          <div className="mt-8 flex justify-center gap-4">
+            {lineIndex < storyLines.length - 1 ? (
+              <button
+                onClick={() => setLineIndex(lineIndex + 1)}
+                disabled={isTyping}
+                className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-lg transition"
+              >
+                Next →
+              </button>
+            ) : (
+              <button
+                onClick={startGame}
+                className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition"
+              >
+                ▶️ Begin Your Mission
+              </button>
+            )}
+            <button
+              onClick={() => setGameState('menu')}
+              className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-6 rounded-lg transition"
+            >
+              ⏪ Back
+            </button>
           </div>
         </div>
       </div>
