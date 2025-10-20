@@ -33,7 +33,7 @@ export default function EmpathyDefender() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [locked, setLocked] = useState(false);
 
-  // Phân tích cảm xúc bằng OpenAI API
+  // Analyze emotion using OpenAI API
   const analyzeEmotionWithAI = async (text: string): Promise<boolean> => {
     try {
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -47,11 +47,11 @@ export default function EmpathyDefender() {
           messages: [
             {
               role: 'system',
-              content: 'Bạn là chuyên gia phân tích cảm xúc. Phân tích xem câu nói có mang tính tiêu cực, bạo lực, xúc phạm, bắt nạt hay không. Chỉ trả lời "NEGATIVE" nếu tiêu cực hoặc "POSITIVE" nếu tích cực.'
+              content: 'You are an emotion analysis expert. Analyze whether a statement is negative, violent, offensive, or bullying. Reply only with "NEGATIVE" if negative or "POSITIVE" if positive.'
             },
             {
               role: 'user',
-              content: `Phân tích câu sau: "${text}"`
+              content: `Analyze this statement: "${text}"`
             }
           ],
           temperature: 0.3,
@@ -81,17 +81,17 @@ export default function EmpathyDefender() {
     }
   };
 
-  // Fallback khi API lỗi - yêu cầu user thử lại
+  // Fallback when API fails - ask user to retry
   const analyzeEmotionFallback = (text: string): boolean => {
-    throw new Error('Không thể phân tích cảm xúc. Vui lòng kiểm tra kết nối API.');
+    throw new Error('Unable to analyze emotion. Please check your API connection.');
   };
 
-  // Sinh câu nói mới bằng OpenAI
+  // Generate new statement using OpenAI
   const generateMessageWithAI = async (isNegative: boolean): Promise<string> => {
     try {
       const prompt = isNegative 
-        ? 'Tạo 1 câu bình luận tiêu cực, bắt nạt trên mạng xã hội bằng tiếng Việt (ngắn gọn, 10-15 từ). Chỉ trả về câu bình luận, không giải thích.'
-        : 'Tạo 1 câu bình luận tích cực, động viên trên mạng xã hội bằng tiếng Việt (ngắn gọn, 10-15 từ). Chỉ trả về câu bình luận, không giải thích.';
+        ? 'Create 1 negative, bullying comment on social media in English (concise, 10-15 words). Return only the comment, no explanation.'
+        : 'Create 1 positive, encouraging comment on social media in English (concise, 10-15 words). Return only the comment, no explanation.';
 
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -104,7 +104,7 @@ export default function EmpathyDefender() {
           messages: [
             {
               role: 'system',
-              content: 'Bạn là người tạo ví dụ cho game giáo dục về chống bắt nạt mạng.'
+              content: 'You are creating examples for an educational game about fighting cyberbullying.'
             },
             {
               role: 'user',
@@ -138,7 +138,7 @@ export default function EmpathyDefender() {
       return data.choices[0].message.content.trim().replace(/['"]/g, '');
     } catch (error) {
       console.error('Error generating message:', error);
-      throw new Error('Không thể tạo câu hỏi mới. Vui lòng kiểm tra API key và kết nối internet.');
+      throw new Error('Unable to create a new question. Please check your API key and internet connection.');
     }
   };
 
@@ -148,8 +148,8 @@ export default function EmpathyDefender() {
   };
 
   const startGame = async () => {
-    setLocked(false);   // 🔓 reset trạng thái khóa
-    setLoading(false);  // ⏳ reset trạng thái loading
+    setLocked(false);   // 🔓 reset lock state
+    setLoading(false);  // ⏳ reset loading state
     setGameState('playing');
     setScore(0);
     setStreak(0);
@@ -191,7 +191,7 @@ export default function EmpathyDefender() {
         setFeedback({ 
           show: true, 
           correct: true, 
-          message: `Chính xác! +${points} điểm ${streak > 0 ? `(Streak x${streak + 1})` : ''}` 
+          message: `Correct! +${points} points ${streak > 0 ? `(Streak x${streak + 1})` : ''}` 
         });
       } else {
         setStreak(0);
@@ -199,7 +199,7 @@ export default function EmpathyDefender() {
         setFeedback({ 
           show: true, 
           correct: false, 
-          message: 'Chưa đúng. Hãy đọc kỹ hơn nhé!' 
+          message: 'Not quite right. Read more carefully!' 
         });
       }
       
@@ -218,13 +218,13 @@ export default function EmpathyDefender() {
       }, 2000);
     } catch (error) {
       setLoading(false);
-      const errorMessage = error instanceof Error ? error.message : 'Lỗi không xác định';
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       setFeedback({ 
         show: true, 
         correct: false, 
         message: `❌ ${errorMessage}` 
       });
-      // Tự động ẩn error sau 5s
+      // Auto hide error after 5s
       setTimeout(() => {
         setFeedback({ show: false, correct: false, message: '' });
       }, 5000);
@@ -250,14 +250,14 @@ export default function EmpathyDefender() {
         setFeedback({ 
           show: true, 
           correct: true, 
-          message: `Tuyệt vời! Bạn đã chữa lành câu nói! +${healingPoints} điểm 💖` 
+          message: `Awesome! You've healed this statement! +${healingPoints} points 💖` 
         });
       } else {
         setStreak(0);
         setFeedback({ 
           show: true, 
           correct: false, 
-          message: 'Hãy thử biến đổi thành lời nói tích cực hơn nhé!' 
+          message: 'Try transforming it into more positive words!' 
         });
       }
       
@@ -277,13 +277,13 @@ export default function EmpathyDefender() {
       }, 2500);
     } catch (error) {
       setLoading(false);
-      const errorMessage = error instanceof Error ? error.message : 'Lỗi không xác định';
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       setFeedback({ 
         show: true, 
         correct: false, 
         message: `❌ ${errorMessage}` 
       });
-      // Tự động ẩn error sau 5s
+      // Auto hide error after 5s
       setTimeout(() => {
         setFeedback({ show: false, correct: false, message: '' });
       }, 5000);
@@ -296,11 +296,11 @@ export default function EmpathyDefender() {
       <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-900 flex items-center justify-center p-4">
         <div className="max-w-md w-full text-center">
           <Key className="w-16 h-16 mx-auto text-pink-400 mb-4" />
-          <h2 className="text-3xl font-bold text-white mb-4">Cài đặt OpenAI API</h2>
+          <h2 className="text-3xl font-bold text-white mb-4">OpenAI API Setup</h2>
           
           <div className="bg-slate-800 bg-opacity-50 backdrop-blur rounded-lg p-6 mb-4 border border-pink-500 border-opacity-30">
             <label className="block text-left text-sm font-semibold text-gray-300 mb-2">
-              🔑 Nhập OpenAI API Key:
+              🔑 Enter OpenAI API Key:
             </label>
             <input
               type="password"
@@ -310,7 +310,7 @@ export default function EmpathyDefender() {
               className="w-full bg-slate-700 text-white px-4 py-3 rounded border border-slate-600 focus:border-pink-500 focus:outline-none mb-3"
             />
             <p className="text-xs text-gray-400 text-left">
-              💡 API key của bạn chỉ lưu trong session này và không được gửi đi đâu khác ngoài OpenAI
+              💡 Your API key is only stored in this session and not sent anywhere except OpenAI
             </p>
           </div>
 
@@ -319,18 +319,18 @@ export default function EmpathyDefender() {
             disabled={!apiKey.trim()}
             className="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 disabled:from-slate-600 disabled:to-slate-600 text-white font-bold py-3 rounded-lg transition"
           >
-            Tiếp tục →
+            Continue →
           </button>
 
           <div className="mt-4 text-xs text-gray-400">
-            <p>🔒 Không có OpenAI API key?</p>
+            <p>🔒 Don't have an OpenAI API key?</p>
             <a 
               href="https://platform.openai.com/api-keys" 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-pink-400 hover:text-pink-300 underline"
             >
-              Tạo tại đây (miễn phí $5 credit)
+              Create one here (free $5 credit)
             </a>
           </div>
         </div>
@@ -346,30 +346,30 @@ export default function EmpathyDefender() {
           <div className="mb-8 animate-bounce">
             <Heart className="w-20 h-20 mx-auto text-pink-400 mb-4 fill-pink-400" />
             <h1 className="text-5xl font-bold text-white mb-2">EMPATHY DEFENDER</h1>
-            <p className="text-pink-300 text-lg">Chống bắt nạt mạng - Lan tỏa yêu thương</p>
+            <p className="text-pink-300 text-lg">Fight Cyberbullying - Spread Kindness</p>
           </div>
 
           <div className="bg-slate-800 bg-opacity-50 backdrop-blur rounded-lg p-6 mb-6 border border-pink-500 border-opacity-30">
-            <h2 className="text-xl font-bold text-white mb-3">🎯 Mục tiêu game</h2>
+            <h2 className="text-xl font-bold text-white mb-3">🎯 Game Objective</h2>
             <p className="text-gray-300 mb-4">
-              Phân biệt lời nói <span className="text-red-400 font-bold">tiêu cực</span> và <span className="text-green-400 font-bold">tích cực</span> trên mạng xã hội.
-              Chuyển đổi lời nói bạo lực thành lời nói đồng cảm!
+              Distinguish <span className="text-red-400 font-bold">negative</span> and <span className="text-green-400 font-bold">positive</span> comments on social media.
+              Transform violent language into empathetic words!
             </p>
           </div>
 
           <div className="bg-slate-800 bg-opacity-50 backdrop-blur rounded-lg p-6 mb-6 border border-purple-500 border-opacity-30">
-            <h3 className="text-lg font-bold text-white mb-3">📚 Bạn sẽ học được:</h3>
+            <h3 className="text-lg font-bold text-white mb-3">📚 What You'll Learn:</h3>
             <div className="text-left text-gray-300 space-y-2 text-sm">
-              <p>✅ Nhận biết ngôn từ gây tổn thương</p>
-              <p>💬 Chuyển đổi lời nói tiêu cực thành tích cực</p>
-              <p>🛡️ Bảo vệ bản thân khỏi bạo lực mạng</p>
-              <p>💖 Lan tỏa sự đồng cảm và tử tế</p>
+              <p>✅ Recognize harmful language</p>
+              <p>💬 Transform negative comments into positive ones</p>
+              <p>🛡️ Protect yourself from cyberbullying</p>
+              <p>💖 Spread empathy and kindness</p>
             </div>
           </div>
 
           <div className="bg-green-600 bg-opacity-20 border border-green-500 rounded-lg p-3 mb-6">
             <p className="text-green-300 text-sm">
-              🤖 <strong>Powered by OpenAI GPT</strong> - Câu hỏi tự động sinh & phân tích thông minh
+              🤖 <strong>Powered by OpenAI GPT</strong> - Auto-generated questions & intelligent analysis
             </p>
           </div>
 
@@ -377,13 +377,13 @@ export default function EmpathyDefender() {
             onClick={startGame}
             className="w-full bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-bold py-4 rounded-lg transition transform hover:scale-105 shadow-lg"
           >
-            ▶️ Bắt đầu chơi
+            ▶️ Start Game
           </button>
 
           <div className="mt-6 text-sm text-gray-400">
-            <p>💡 Mỗi lần phân loại đúng: +10 điểm</p>
-            <p>✨ Chữa lành lời nói: +20 điểm</p>
-            <p>🔥 Streak combo: Điểm thưởng x2, x3...</p>
+            <p>💡 Each correct classification: +10 points</p>
+            <p>✨ Heal a statement: +20 points</p>
+            <p>🔥 Streak combo: Points multiplied by 2x, 3x...</p>
           </div>
         </div>
       </div>
@@ -394,13 +394,13 @@ export default function EmpathyDefender() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-pink-900 via-purple-900 to-indigo-900 flex flex-col items-center justify-center text-center p-6">
         <CheckCircle className="w-16 h-16 text-green-400 mb-4" />
-        <h1 className="text-4xl font-bold text-white mb-2">Hoàn thành 10 vòng!</h1>
-        <p className="text-pink-300 mb-6 text-lg">Điểm số cuối cùng của bạn:</p>
+        <h1 className="text-4xl font-bold text-white mb-2">Completed 10 Rounds!</h1>
+        <p className="text-pink-300 mb-6 text-lg">Your final score:</p>
         <div className="text-6xl font-extrabold text-green-400 mb-8">{score}</div>
 
         <div className="bg-slate-800 bg-opacity-50 backdrop-blur rounded-lg p-6 border border-pink-500 border-opacity-30 max-w-md">
-          <p className="text-gray-300 text-sm mb-2">💖 Cảm ơn bạn đã lan tỏa sự đồng cảm!</p>
-          <p className="text-gray-400 text-sm">Hãy chia sẻ game này với bạn bè nhé!</p>
+          <p className="text-gray-300 text-sm mb-2">💖 Thank you for spreading empathy!</p>
+          <p className="text-gray-400 text-sm">Share this game with your friends!</p>
         </div>
 
         <div className="mt-8 flex flex-col gap-3">
@@ -408,13 +408,13 @@ export default function EmpathyDefender() {
             onClick={startGame}
             className="bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-lg transition"
           >
-            🔁 Chơi lại
+            🔁 Play Again
           </button>
           <button
             onClick={() => setGameState('menu')}
             className="bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-6 rounded-lg transition"
           >
-            ⏪ Quay lại menu
+            ⏪ Back to Menu
           </button>
         </div>
       </div>
@@ -459,15 +459,15 @@ export default function EmpathyDefender() {
             <Heart className="w-10 h-10 text-pink-400 fill-pink-400" />
             <h1 className="text-4xl font-bold text-white">EMPATHY DEFENDER</h1>
           </div>
-          <p className="text-pink-300">Nhận diện & chữa lành lời nói bạo lực</p>
-          <p className="text-gray-400 text-sm mt-1">🎮 Vòng {round}</p>
+          <p className="text-pink-300">Identify & heal harmful language</p>
+          <p className="text-gray-400 text-sm mt-1">🎮 Round {round}</p>
         </div>
 
         {/* Score & Streak */}
         <div className="flex gap-4 mb-6 justify-center">
           <div className="bg-slate-800 bg-opacity-50 backdrop-blur rounded-lg p-4 border border-pink-500 border-opacity-30 min-w-[150px] text-center">
             <div className="text-3xl font-bold text-pink-400">{score}</div>
-            <div className="text-sm text-gray-400">Điểm</div>
+            <div className="text-sm text-gray-400">Points</div>
           </div>
           {streak > 0 && (
             <div className="bg-slate-800 bg-opacity-50 backdrop-blur rounded-lg p-4 border border-orange-500 border-opacity-30 min-w-[150px] text-center animate-pulse">
@@ -489,7 +489,7 @@ export default function EmpathyDefender() {
               ) : (
                 <div className="flex items-center gap-2 text-gray-400">
                   <Zap className="w-5 h-5 animate-spin" />
-                  <span>Đang tạo câu hỏi mới...</span>
+                  <span>Creating new question...</span>
                 </div>
               )}
             </div>
@@ -503,7 +503,7 @@ export default function EmpathyDefender() {
               className="bg-red-600 hover:bg-red-700 disabled:bg-slate-600 text-white font-bold py-3 rounded-lg transition transform hover:scale-105 flex items-center justify-center gap-2"
             >
               <Frown className="w-5 h-5" />
-              Tiêu cực 💔
+              Negative 💔
             </button>
             <button
               onClick={() => handleClassification(false)}
@@ -511,7 +511,7 @@ export default function EmpathyDefender() {
               className="bg-green-600 hover:bg-green-700 disabled:bg-slate-600 text-white font-bold py-3 rounded-lg transition transform hover:scale-105 flex items-center justify-center gap-2"
             >
               <Smile className="w-5 h-5" />
-              Tích cực 💚
+              Positive 💚
             </button>
           </div>
 
@@ -525,7 +525,7 @@ export default function EmpathyDefender() {
           {/* Healing Section */}
           <div className="border-t border-gray-600 pt-4">
             <label className="block text-sm font-semibold text-pink-300 mb-2">
-              ✨ Chữa lành: Biến câu trên thành lời nói tích cực
+              ✨ Heal: Transform this comment into positive words
             </label>
             <div className="flex gap-2">
               <input
@@ -533,7 +533,7 @@ export default function EmpathyDefender() {
                 value={userInput}
                 onChange={(e) => setUserInput(e.target.value)}
                 onKeyPress={(e) => e.key === 'Enter' && !loading && userInput.trim() && transformToPositive()}
-                placeholder="Ví dụ: Bạn rất tuyệt vời, hãy cố gắng nhé!"
+                placeholder="Example: You're amazing, keep pushing forward!"
                 className="flex-1 bg-slate-700 text-white px-4 py-3 rounded border border-slate-600 focus:border-pink-500 focus:outline-none"
                 disabled={loading || !currentMessage}
               />
@@ -551,8 +551,8 @@ export default function EmpathyDefender() {
         {/* Tips */}
         <div className="bg-slate-800 bg-opacity-30 backdrop-blur rounded-lg p-4 border border-indigo-500 border-opacity-20">
           <p className="text-gray-300 text-sm text-center">
-            💡 <span className="font-bold text-pink-300">Mẹo:</span> AI đang phân tích ngữ nghĩa sâu hơn cả từ ngữ. 
-            Hãy chú ý đến ngữ cảnh và cảm xúc thật sự đằng sau câu nói!
+            💡 <span className="font-bold text-pink-300">Tip:</span> AI analyzes deep semantics beyond just words. 
+            Pay attention to context and the real emotion behind the statement!
           </p>
         </div>
       </div>
