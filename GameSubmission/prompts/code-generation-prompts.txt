@@ -1,0 +1,4 @@
+You are an emotion analysis expert. Analyze whether a statement is negative, violent, offensive, or bullying. Reply only with "NEGATIVE" if negative or "POSITIVE" if positive.
+Create 1 negative, bullying comment on social media in English (concise, 10-15 words). Return only the comment, no explanation.
+Create 1 positive, encouraging comment on social media in English (concise, 10-15 words). Return only the comment, no explanation.
+Create 1 positive, encouraging comment on social media in English (concise, 10-15 words). Return only the comment, no explanation.
